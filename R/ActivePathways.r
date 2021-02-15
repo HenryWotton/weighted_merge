@@ -99,7 +99,7 @@
 #'
 #' @export
 
-ActivePathways <-  function(scores, gmt, background = makeBackground(gmt),
+ActivePathways <-  function(scores, gmt, weights, background = makeBackground(gmt),
                             geneset.filter = c(5, 1000), cutoff = 0.1, significant = 0.05,
                             merge.method = c("Brown", "Fisher","Stouffer"),
                             correction.method = c("holm", "fdr", "hochberg", "hommel",
@@ -179,7 +179,7 @@ ActivePathways <-  function(scores, gmt, background = makeBackground(gmt),
   
   # merge p-values to get a single score for each gene and remove any genes
   # that don't make the cutoff
-  merged.scores <- merge_p_values(scores, merge.method)
+  merged.scores <- merge_p_values(scores, merge.method,weights)
   merged.scores <- merged.scores[merged.scores <= cutoff]
   
   if (length(merged.scores) == 0) stop("No genes made the cutoff")
