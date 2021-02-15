@@ -4,7 +4,7 @@
 \alias{merge_p_values}
 \title{Merge a list or matrix of p-values}
 \usage{
-merge_p_values(scores, method = "Fisher")
+merge_p_values(scores, method = "Fisher", weights)
 }
 \arguments{
 \item{scores}{Either a list of p-values or a matrix where each column is a test.}

@@ -7,11 +7,12 @@
 ActivePathways(
   scores,
   gmt,
+  weights,
   background = makeBackground(gmt),
   geneset.filter = c(5, 1000),
   cutoff = 0.1,
   significant = 0.05,
-  merge.method = c("Brown", "Fisher"),
+  merge.method = c("Brown", "Fisher", "Stouffer"),
   correction.method = c("holm", "fdr", "hochberg", "hommel", "bonferroni", "BH", "BY",
     "none"),
   cytoscape.file.tag = NA
