@@ -190,7 +190,7 @@ ActivePathways <-  function(scores, gmt, weights, background = makeBackground(gm
   if (is.null(dim(merged.scores))){
     ordered.scores <- names(merged.scores)[order(merged.scores)]
   }else{
-    ordered.scores <- rownames(merged.scores)[order(merged.scores[,1]),,drop=F]
+    ordered.scores <- rownames(merged.scores[order(merged.scores[,1]),,drop=F])
   }
   
   return(ordered.scores)
