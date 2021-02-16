@@ -39,7 +39,7 @@ merge_p_values <- function(scores, method = "Fisher", weights) {
     
     if(method=="Stouffer"){
         if (is.numeric(weights)){
-            # return(as.double(t(stoufferMethod(scores,weights))))
+             return(stoufferMethod(scores,weights))
         }
     }
     
