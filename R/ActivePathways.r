@@ -193,7 +193,6 @@ ActivePathways <-  function(scores, gmt, weights, background = makeBackground(gm
     ordered.scores <- rownames(merged.scores[order(merged.scores[,1]),,drop=F])
   }
   
-  return(ordered.scores)
 
   ##### enrichmentAnalysis and column contribution #####
 
