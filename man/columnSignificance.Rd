@@ -43,7 +43,7 @@ before testing.}
 \value{
 a data.table with columns 'term.id' and a column for each column
 in \code{scores}, indicating whether each term (pathway) was found to be
-significant or not when considering only that column. For each term, 
+significant or not when considering only that column. For each term,
 either report the list of related genes if that term was significant, or NA if not.
 }
 \description{

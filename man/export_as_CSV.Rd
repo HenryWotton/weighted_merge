@@ -15,7 +15,7 @@ export_as_CSV(res, file_name)
 Export the results from ActivePathways as a comma-separated values (CSV) file.
 }
 \examples{
-    fname_scores <- system.file("extdata", "Adenocarcinoma_scores_subset.tsv", 
+    fname_scores <- system.file("extdata", "Adenocarcinoma_scores_subset.tsv",
          package = "ActivePathways")
     fname_GMT = system.file("extdata", "hsapiens_REAC_subset.gmt",
          package = "ActivePathways")

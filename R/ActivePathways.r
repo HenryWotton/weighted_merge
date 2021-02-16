@@ -180,25 +180,33 @@ ActivePathways <-  function(scores, gmt, weights, background = makeBackground(gm
   # merge p-values to get a single score for each gene and remove any genes
   # that don't make the cutoff
   merged.scores <- merge_p_values(scores, merge.method,weights)
-  merged.scores <- merged.scores[merged.scores <= cutoff]
+  # here I have to modify to accomadate the output from stouffermethod 
+  merged.scores <- as.matrix(merged.scores)
+  merged.scores <- merged.scores[merged.scores[,1]<=cutoff,,drop=F]
   
   if (length(merged.scores) == 0) stop("No genes made the cutoff")
   
   # Sort genes by p-value
-  ordered.scores <- names(merged.scores)[order(merged.scores)]
+  if (is.null(dim(merged.scores))){
+    ordered.scores <- names(merged.scores)[order(merged.scores)]
+  }else{
+    ordered.scores <- rownames(merged.scores)[order(merged.scores[,1]),,drop=F]
+  }
   
+  return(ordered.scores)
+
   ##### enrichmentAnalysis and column contribution #####
-  
+
   res <- enrichmentAnalysis(ordered.scores, gmt, background)
   adjusted_p <- stats::p.adjust(res$adjusted.p.val, method = correction.method)
   res[, "adjusted.p.val" := adjusted_p]
-  
+
   significant.indeces <- which(res$adjusted.p.val <= significant)
   if (length(significant.indeces) == 0) {
     warning("No significant terms were found.")
     return()
   }
-  
+
   if (contribution) {
     sig.cols <- columnSignificance(scores, gmt, background, cutoff,
                                    significant, correction.method, res$adjusted.p.val)
@@ -206,16 +214,16 @@ ActivePathways <-  function(scores, gmt, weights, background = makeBackground(gm
   } else {
     sig.cols <- NULL
   }
-  
+
   # if significant result were found and cytoscape file tag exists
   # proceed with writing files in the working directory
   if (length(significant.indeces) > 0 & !is.na(cytoscape.file.tag)) {
     prepareCytoscape(res[significant.indeces, c("term.id", "term.name", "adjusted.p.val")],
-                     gmt[significant.indeces], 
+                     gmt[significant.indeces],
                      cytoscape.file.tag,
                      sig.cols[significant.indeces,])
   }
-  
+
   res[significant.indeces]
 }
 
@@ -240,7 +248,7 @@ ActivePathways <-  function(scores, gmt, weights, background = makeBackground(gm
 #' @keywords internal
 enrichmentAnalysis <- function(genelist, gmt, background) {
   dt <- data.table(term.id=names(gmt))
-  
+
   for (i in 1:length(gmt)) {
     term <- gmt[[i]]
     tmp <- orderedHypergeometric(genelist, background, term$genes)
@@ -256,15 +264,15 @@ enrichmentAnalysis <- function(genelist, gmt, background) {
 }
 
 #' Determine which terms are found to be significant using each column
-#' individually. 
+#' individually.
 #'
 #' @inheritParams ActivePathways
 #' @param pvals p-value for the pathways calculated by ActivePathways
 #'
 #' @return a data.table with columns 'term.id' and a column for each column
 #' in \code{scores}, indicating whether each term (pathway) was found to be
-#' significant or not when considering only that column. For each term, 
-#' either report the list of related genes if that term was significant, or NA if not. 
+#' significant or not when considering only that column. For each term,
+#' either report the list of related genes if that term was significant, or NA if not.
 
 columnSignificance <- function(scores, gmt, background, cutoff, significant, correction.method, pvals) {
   dt <- data.table(term.id=names(gmt), evidence=NA)
@@ -272,13 +280,13 @@ columnSignificance <- function(scores, gmt, background, cutoff, significant, cor
     col.scores <- scores[, col, drop=TRUE]
     col.scores <- col.scores[col.scores <= cutoff]
     col.scores <- names(col.scores)[order(col.scores)]
-    
+
     res <- enrichmentAnalysis(col.scores, gmt, background)
     set(res, i = NULL, "adjusted.p.val", stats::p.adjust(res$adjusted.p.val, correction.method))
     set(res, i = which(res$adjusted.p.val > significant), "overlap", list(list(NA)))
     set(dt, i=NULL, col, res$overlap)
   }
-  
+
   ev_names = colnames(dt[,-1:-2])
   set_evidence <- function(x) {
     ev <- ev_names[!is.na(dt[x, -1:-2])]
@@ -292,21 +300,21 @@ columnSignificance <- function(scores, gmt, background, cutoff, significant, cor
     ev
   }
   evidence <- lapply(1:nrow(dt), set_evidence)
-  
+
   set(dt, i=NULL, "evidence", evidence)
   colnames(dt)[-1:-2] = paste0("Genes_", colnames(dt)[-1:-2])
-  
+
   dt
 }
 
-#' Export the results from ActivePathways as a comma-separated values (CSV) file. 
+#' Export the results from ActivePathways as a comma-separated values (CSV) file.
 #'
 #' @param res the data.table object with ActivePathways results.
 #' @param file_name location and name of the CSV file to write to.
 #' @export
 #'
 #' @examples
-#'     fname_scores <- system.file("extdata", "Adenocarcinoma_scores_subset.tsv", 
+#'     fname_scores <- system.file("extdata", "Adenocarcinoma_scores_subset.tsv",
 #'          package = "ActivePathways")
 #'     fname_GMT = system.file("extdata", "hsapiens_REAC_subset.gmt",
 #'          package = "ActivePathways")
@@ -319,6 +327,6 @@ columnSignificance <- function(scores, gmt, background, cutoff, significant, cor
 #'     export_as_CSV(res, "results_ActivePathways.csv")
 #'}
 export_as_CSV = function (res, file_name) {
-	data.table::fwrite(res, file_name)	
-} 
+	data.table::fwrite(res, file_name)
+}
 
