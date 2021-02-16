@@ -189,7 +189,9 @@ ActivePathways <-  function(scores, gmt, weights, background = makeBackground(gm
   # Sort genes by p-value
   if (is.null(dim(merged.scores))){
     ordered.scores <- names(merged.scores)[order(merged.scores)]
-  }else{
+  }
+  
+  if (!is.null(dim(merged.scores))){
     ordered.scores <- rownames(merged.scores[order(merged.scores[,1]),,drop=F])
   }
   
